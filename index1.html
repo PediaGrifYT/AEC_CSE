@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User and Admin Interaction</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Attendance System</h1>
+
+        <!-- User Section -->
+        <div id="user-section" class="hidden">
+            <h2>User Section: Submit Attendance</h2>
+            <table id="user-attendance-table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="user-student-list">
+                    <!-- Students will be dynamically added here -->
+                </tbody>
+            </table>
+            <button id="user-save-btn" class="btn">Submit Attendance</button>
+        </div>
+
+        <!-- Admin Section -->
+        <div id="admin-section" class="hidden">
+            <h2>Admin Section: View Attendance</h2>
+            <div class="controls">
+                <button id="admin-view-btn" class="btn">View Attendance</button>
+                <button id="admin-export-btn" class="btn">Download Attendance as Excel</button>
+                <button id="admin-reset-btn" class="btn danger">Reset Attendance Data</button>
+            </div>
+            <div id="admin-attendance-data"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function getUrlParameter(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        window.onload = function() {
+            const role = getUrlParameter("role");
+            
+            if (role === "admin") {
+                document.getElementById("admin-section").classList.remove("hidden");
+            } else if (role === "user") {
+                document.getElementById("user-section").classList.remove("hidden");
+            } else {
+                alert("Invalid role! Redirecting to login page...");
+                window.location.href = "login.html";
+            }
+
+            const userStudentList = document.getElementById("user-student-list");
+            const students = ["Abinaya","Anbuselvan","Arun Kumar","Bala Chendar","Basker","Danush","Deva Dharshini","Durga Devi","Gayathri","Gopinath","Gowthamen","Hemanth Kumar","Kalivani","Kayal Vizhi","Kiran","Kishore Babu","Lathika","Mani Bharathi","Muthu Kumar","Nithya","Niyamathula","Prakesh","Priya","Priya Bharathi","Ramesh Krishana","Roshan","Rubala","Ruthra Devi","Sanjay Kumar","Santhosh","Sham Praison","Soniya","Srimathi","Subalatha","Subash","Uthaya Bharathi","Varshini","veeramuthu","Vimalya","Yogaraj"];
+            students.forEach(student => {
+                let row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${student}</td>
+                    <td>
+                        <select class="attendance-status">
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                            <option value="Late">Late</option>
+                        </select>
+                    </td>
+                `;
+                userStudentList.appendChild(row);
+            });
+        };
+        // Save attendance from User section to localStorage
+        document.getElementById("user-save-btn").addEventListener("click", () => {
+            const attendanceData = [];
+
+            const rows = document.querySelectorAll("#user-student-list tr");
+            rows.forEach(row => {
+                const studentName = row.cells[0].textContent;
+                const status = row.querySelector(".attendance-status").value;
+                attendanceData.push({ name: studentName, status: status });
+            });
+
+            localStorage.setItem("attendance", JSON.stringify(attendanceData));
+            alert("Attendance submitted!");
+        });
+
+    </script>
+</body>
+</html>
